@@ -1,0 +1,68 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core">
+	<VBox class="sapUiSmallMargin">
+		<f:SimpleForm id="TransferForm" class="formWithLargeLabels" editable="true" layout="ResponsiveGridLayout" labelSpanXL="4"
+			labelSpanL="5" labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
+			singleContainerFullSize="false">
+			<f:content>
+				<!-- Employee Details (Left Side) -->
+				<core:Title text="Employee Details"/>
+				<Label text="Employee" class="customLabelCss"/>
+				<Input value="{employeeModel>/Emp}" editable="false"/>
+				<Label text="Current SBU-Org. Unit" class="customLabelCss"/>
+				<Input value="{employeeModel>/SBU}" editable="false"/>
+				<Label text="Current Location-Building"/>
+				<Input value="{employeeModel>/Location}" editable="false"/>
+				<Label text="Current Designation"/>
+				<Input value="{employeeModel>/Designation}" tooltip="{employeeModel>/Designation}" editable="false"/>
+				<!-- Manager Details (Right Side) -->
+				<core:Title text="Manager Details"/>
+				<Label text="Reporting Manager"/>
+				<Input value="{employeeModel>/manager}" editable="false"/>
+				<Label text="RM's Designation"/>
+				<Input value="{employeeModel>/RM_Designation}" tooltip="{employeeModel>/RM_Designation}" editable="false"/>
+				<Label text="HOD"/>
+				<Input value="{employeeModel>/Hod}" editable="false"/>
+				<Label text="HOD Designation"/>
+				<Input value="{employeeModel>/Hod1Designation}" editable="false" tooltip="{employeeModel>/Hod1Designation}"/>
+			</f:content>
+		</f:SimpleForm>
+		<!-- Transfer Details Section -->
+		<HBox justifyContent="Center" class="sapUiMediumMarginTop">
+			<VBox width="80%" class="sapUiSmallMargin">
+				<f:SimpleForm id="TransferDetailForm" class="formWithLargeLabels" editable="true" layout="ResponsiveGridLayout" labelSpanXL="4"
+					labelSpanL="5" labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
+					singleContainerFullSize="false">
+					<f:content>
+						<!-- Details (Left Side) -->
+						<core:Title text="Transfer Details"/>
+						<Label text="New SBU" class="customLabelCss"/>
+						<Input value="{transferModel>/NewSBU}" editable="false"/>
+						<Label text="New Location" class="customLabelCss"/>
+						<Input value="{transferModel>/NewLocation}" editable="false"/>
+						<Label text="New Designation" class="customLabelCss"/>
+						<Input value="{transferModel>/NewDesignation}" editable="false"/>
+						<Label text="New RM" class="customLabelCss"/>
+						<Input value="{transferModel>/NewRM}" editable="false"/>
+						<!-- Details (Right Side) -->
+						<core:Title text=""/>
+						<Label text="New Org Unit" class="customLabelCss"/>
+						<Input value="{transferModel>/NewOrgUnit}" editable="false"/>
+						<Label text="New Building" class="customLabelCss"/>
+						<Input value="{transferModel>/NewBuilding}" editable="false"/>
+					</f:content>
+				</f:SimpleForm>
+				<VBox class="formWithLargeLabels">
+					<CheckBox selected="{transferModel>/MatrixManagerSelected}" text="Matrix Manager" enabled="false" class="sapUiTinyMarginBegin"/>
+					<f:SimpleForm id="MatrxMngEmpId" class="formWithLargeLabels" editable="false" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="5"
+						labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
+						singleContainerFullSize="false" visible="{transferModel>/MatrixManagerSelected}">
+						<f:content>
+							<Label text="Matrix Manager Emp ID"/>
+							<Input id="matrxMngrEmpId" value="{transferModel>/NewMMId}" editable="false"/>
+						</f:content>
+					</f:SimpleForm>
+				</VBox>
+			</VBox>
+		</HBox>
+	</VBox>
+</core:FragmentDefinition>
