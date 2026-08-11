@@ -237,8 +237,10 @@ sap.ui.define(
           oEmpModel.setData({
             NewDesignation: oSrvData.NewDesignation || "",
             NewRM: sNewRm,
+            NewRmDesignation: oSrvData.NewRm1Designation || "",
             MatrixManagerSelected: bHasMatrixManager,
             NewMMId: sNewMM,
+            NewMMDesignation: oSrvData.NewMatrixManagerDesig || "",
           });
         },
       },

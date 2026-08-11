@@ -224,8 +224,10 @@ sap.ui.define(
             NewBuilding: oSrvData.NewBuildingText || "",
             NewDesignation: oSrvData.NewDesignation || "",
             NewRM: sNewRm,
+            NewRmDesignation: oSrvData.NewRm1Designation || "",
             MatrixManagerSelected: bHasMatrixManager,
             NewMMId: sNewMM,
+            NewMMDesignation: oSrvData.NewMatrixManagerDesig || "",
           });
         },
       },
