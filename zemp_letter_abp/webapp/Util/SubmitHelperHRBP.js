@@ -16,7 +16,7 @@ sap.ui.define([
 			};
 			var sAction = oView.getModel("stateModel").getProperty("/selectedAction");
 			var sEntitySet = oEntityMap[sAction];
-			if (sAction === "C1" && !oController._validateDependentFields(oController)) {
+			if ((sAction === "C1" || sAction === "T1") && !oController._validateDependentFields()) {
 				return;
 			}
 			var oView = oController.getView();
@@ -48,18 +48,17 @@ sap.ui.define([
 				return;
 			}
 			var sNewDesignation = "";
-			if (oView.byId("newDesignation")) {
-				sNewDesignation = oView.byId("newDesignation").getValue();
-			} else {
-				sNewDesignation = "";
+			var oDesignationInput = oView.byId("newDesignation") || oView.byId("newDesignationTransfer");
+			if (oDesignationInput) {
+				sNewDesignation = oDesignationInput.getValue();
 			}
 			var sNewRm1Id = "";
 			var sNewRm1Name = "";
 			var sNewMatrixManagerId = "";
 			var sNewMatrixManagerName = "";
 
-			// New Reporting Manager
-			var oNewRM = oController.getView().byId("newRMItems");
+			// New Reporting Manager (R1: newRMItems, T1: newRMItemsTransfer)
+			var oNewRM = oController.getView().byId("newRMItems") || oController.getView().byId("newRMItemsTransfer");
 
 			if (oNewRM && oNewRM.getValue()) {
 				var aNewRM = oNewRM.getValue().split("-");
@@ -73,8 +72,8 @@ sap.ui.define([
 				sNewRm1Name = "";
 			}
 
-			// New Matrix Manager
-			var oMatrixMgr = oController.getView().byId("matrxMngrEmpId");
+			// New Matrix Manager (R1: matrxMngrEmpId, T1: matrxMngrEmpIdTransfer)
+			var oMatrixMgr = oController.getView().byId("matrxMngrEmpId") || oController.getView().byId("matrxMngrEmpIdTransfer");
 
 			if (oMatrixMgr && oMatrixMgr.getValue()) {
 				var aMatrixMgr = oMatrixMgr.getValue().split("-");
@@ -86,6 +85,38 @@ sap.ui.define([
 			} else {
 				sNewMatrixManagerId = "";
 				sNewMatrixManagerName = "";
+			}
+
+			// Transfer fields (T1)
+			var sNewSbuId = "", sNewSbuText = "";
+			var sNewOrgunitId = "", sNewOrgUnittext = "";
+			var sNewLocationId = "", sNewLocationText = "";
+			var sNewBuildingId = "", sNewBuildingText = "";
+
+			if (sAction === "T1") {
+				var oSBU = oView.byId("newSBUTransfer");
+				if (oSBU && oSBU.getSelectedItem()) {
+					sNewSbuId = oSBU.getSelectedKey();
+					sNewSbuText = oSBU.getSelectedItem().getText();
+				}
+
+				var oOrgUnit = oView.byId("newOrgUnit");
+				if (oOrgUnit && oOrgUnit.getSelectedItem()) {
+					sNewOrgunitId = oOrgUnit.getSelectedKey();
+					sNewOrgUnittext = oOrgUnit.getSelectedItem().getText();
+				}
+
+				var oLocation = oView.byId("newLocationTransfer");
+				if (oLocation && oLocation.getSelectedItem()) {
+					sNewLocationId = oLocation.getSelectedKey();
+					sNewLocationText = oLocation.getSelectedItem().getText();
+				}
+
+				var oBuilding = oView.byId("newBuilding");
+				if (oBuilding && oBuilding.getSelectedItem()) {
+					sNewBuildingId = oBuilding.getSelectedKey();
+					sNewBuildingText = oBuilding.getSelectedItem().getText();
+				}
 			}
 			var oEntry = {
 				RequestId: "",
@@ -158,18 +189,18 @@ sap.ui.define([
 				NewDesignation: sNewDesignation,
 				NewRm1Id: sNewRm1Id,
 				NewRm1Name: sNewRm1Name,
-				NewRm1Designation: "",
+				NewRm1Designation: oEmpData.NewRm1Designation || "",
 				NewMatrixManagerId: sNewMatrixManagerId,
 				NewMatrixManagerName: sNewMatrixManagerName,
-				NewMatrixManagerDesig: "",
-				NewSbuId: "",
-				NewSbuText: "",
-				NewOrgunitId: "",
-				NewOrgUnittext: "",
-				NewLocationId: "",
-				NewLocationText: "",
-				NewBuildingId: "",
-				NewBuildingText: "",
+				NewMatrixManagerDesig: oEmpData.NewMatrixManagerDesig || "",
+				NewSbuId: sNewSbuId,
+				NewSbuText: sNewSbuText,
+				NewOrgunitId: sNewOrgunitId,
+				NewOrgUnittext: sNewOrgUnittext,
+				NewLocationId: sNewLocationId,
+				NewLocationText: sNewLocationText,
+				NewBuildingId: sNewBuildingId,
+				NewBuildingText: sNewBuildingText,
 				RetirementDate: "",
 				Edit: false,
 				Submit: false
@@ -244,39 +275,7 @@ sap.ui.define([
 			// oController.loadTrackClaimsData(oController);
 		},
 		_validateDependentFields: function (oController) {
-			var bValid = true;
-			// Org Unit
-			var oOrgUnit = oController.byId("newOrgUnit");
-			var aOrgUnits = "";
-			// var aOrgUnits = this.getView().getModel("newOrgUnitModel") ? this.getView().getModel("newOrgUnitModel").getProperty("/results") || []
-			if (oController.getView().getModel("newOrgUnitModel")) {
-				aOrgUnits = oController.getView().getModel("newOrgUnitModel").getProperty("/results");
-			} else {
-				aOrgUnits = [];
-			}
-			if (aOrgUnits.length > 0 && !oOrgUnit.getSelectedKey()) {
-				oOrgUnit.setValueState("Error");
-				oOrgUnit.setValueStateText("Please select an Org Unit");
-				bValid = false;
-			}
-
-			// Building
-			var oBuilding = oController.byId("newBuilding");
-			var aBuildings = "";
-			// var aBuildings = this.getView().getModel("newBuildingModel") ? this.getView().getModel("newBuildingModel").getProperty("/results") || []
-			if (oController.getView().getModel("newBuildingModel")) {
-				aBuildings = oController.getView().getModel("newBuildingModel").getProperty("/results");
-			} else {
-				aBuildings = [];
-			}
-
-			if (aBuildings.length > 0 && !oBuilding.getSelectedKey()) {
-				oBuilding.setValueState("Error");
-				oBuilding.setValueStateText("Please select a Building");
-				bValid = false;
-			}
-
-			return bValid;
+			return oController._validateDependentFields();
 		},
 		_validateInputs: function (oFeedback, oEffDate, oController, sAction) {
 			var aMissingFields = [];

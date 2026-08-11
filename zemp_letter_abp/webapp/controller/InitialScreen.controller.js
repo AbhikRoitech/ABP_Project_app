@@ -478,7 +478,9 @@ sap.ui.define([
 							Hod: `${oSrvData.Hod1Id.replace(/^0+/, "")} - ${oSrvData.Hod1Name}` || "",
 							Hod1Designation: oSrvData.Hod1Designation || "",
 							NewRM: oSrvData.NewRm1Name || "",
-							Status: oSrvData.Status || "Open"
+							Status: oSrvData.Status || "Open",
+							NewRm1Designation: oSrvData.NewRm1Designation || "",
+							NewMatrixManagerDesig: oSrvData.NewMatrixManagerDesig || ""
 						});
 						// ENABLE FOOTER
 						var sStatusUpper = (oSrvData.Status || "").toUpperCase();
@@ -620,6 +622,8 @@ sap.ui.define([
 							NewRM: oSrvData.NewRm1Name || "",
 							Status: oSrvData.Status || "",
 							NewDesignation: oSrvData.NewDesignation || "",
+							NewRm1Designation: oSrvData.NewRm1Designation || "",
+							NewMatrixManagerDesig: oSrvData.NewMatrixManagerDesig || "",
 							MatrixManagerSelected: !!(oSrvData.NewMatrixManagerId && oSrvData.NewMatrixManagerId.replace(/^0+/, ""))
 						});
 						// ENABLE FOOTER
@@ -722,11 +726,13 @@ sap.ui.define([
 
 								if (oFragmentPromise) {
 									oFragmentPromise.then(function () {
-										var oNewDesig = oView.byId("newDesignation");
+										// New Designation (R1: newDesignation, T1: newDesignationTransfer)
+										var oNewDesig = oView.byId("newDesignation") || oView.byId("newDesignationTransfer");
 										if (oNewDesig && oSrvData.NewDesignation) {
 											oNewDesig.setValue(oSrvData.NewDesignation);
 										}
-										var oNewRM = oView.byId("newRMItems");
+										// New RM (R1: newRMItems, T1: newRMItemsTransfer)
+										var oNewRM = oView.byId("newRMItems") || oView.byId("newRMItemsTransfer");
 										if (oNewRM && oSrvData.NewRm1Name) {
 											var sRmValue = oSrvData.NewRm1Name;
 											if (oSrvData.NewRm1Id) {
@@ -734,9 +740,10 @@ sap.ui.define([
 											}
 											oNewRM.setValue(sRmValue);
 										}
+										// Matrix Manager (R1: matrxMngrEmpId, T1: matrxMngrEmpIdTransfer)
 										if (oSrvData.NewMatrixManagerId && oSrvData.NewMatrixManagerId.replace(/^0+/, "")) {
 											that.onMatrixCheck(true);
-											var oMatrixInput = oView.byId("matrxMngrEmpId");
+											var oMatrixInput = oView.byId("matrxMngrEmpId") || oView.byId("matrxMngrEmpIdTransfer");
 											if (oMatrixInput) {
 												var sMatrixVal = oSrvData.NewMatrixManagerName || "";
 												if (oSrvData.NewMatrixManagerId) {
@@ -744,6 +751,38 @@ sap.ui.define([
 												}
 												oMatrixInput.setValue(sMatrixVal);
 											}
+										}
+										// Transfer ComboBoxes (T1 only)
+										if (sActionKey === "T1") {
+											console.log("T1 pre-populate →", "NewSbuId:", oSrvData.NewSbuId, "NewOrgunitId:", oSrvData.NewOrgunitId, "NewLocationId:", oSrvData.NewLocationId, "NewBuildingId:", oSrvData.NewBuildingId, "NewDesignation:", oSrvData.NewDesignation);
+											that._loadOData("/NewSBUSet", [], "newSBUModel", function () {
+												var oSBU = oView.byId("newSBUTransfer");
+												if (oSBU && oSrvData.NewSbuId) {
+													oSBU.setSelectedKey(oSrvData.NewSbuId);
+													that._loadOData("/NewOrgUnitSet", [
+														new sap.ui.model.Filter("SBUCode", sap.ui.model.FilterOperator.EQ, oSrvData.NewSbuId)
+													], "newOrgUnitModel", function () {
+														var oOrgUnit = oView.byId("newOrgUnit");
+														if (oOrgUnit && oSrvData.NewOrgunitId) {
+															oOrgUnit.setSelectedKey(oSrvData.NewOrgunitId);
+														}
+													});
+												}
+											});
+											that._loadOData("/NewLocationSet", [], "newLocationModel", function () {
+												var oLocation = oView.byId("newLocationTransfer");
+												if (oLocation && oSrvData.NewLocationId) {
+													oLocation.setSelectedKey(oSrvData.NewLocationId);
+													that._loadODataLocBuilding("/NewBuildingSet", [
+														new sap.ui.model.Filter("LocationId", sap.ui.model.FilterOperator.EQ, oSrvData.NewLocationId)
+													], "newBuildingModel", function () {
+														var oBuilding = oView.byId("newBuilding");
+														if (oBuilding && oSrvData.NewBuildingId) {
+															oBuilding.setSelectedKey(oSrvData.NewBuildingId);
+														}
+													});
+												}
+											});
 										}
 									});
 								}
@@ -1919,13 +1958,27 @@ sap.ui.define([
 			);
 		},
 		onNewSBUChange: function (oEvent) {
-			var oSelectedItem = oEvent.getSource().getSelectedItem();
-			if (!oSelectedItem) {
+			var oView = this.getView();
+			var oOrgUnit = oView.byId("newOrgUnit");
+			if (oOrgUnit) {
+				oOrgUnit.setSelectedKey("");
+				oOrgUnit.setValueState("None");
+			}
+			var oSelectedItem = oEvent.getParameter("selectedItem");
+			if (!oSelectedItem || !oSelectedItem.getKey()) {
+				oView.setModel(new sap.ui.model.json.JSONModel({ results: [] }), "newOrgUnitModel");
 				return;
 			}
 			var sSBUCode = oSelectedItem.getKey();
 			this.getNewOrgUnitSet(sSBUCode);
 		},
+		onNewOrgUnitChange: function (oEvent) {
+			var oSource = oEvent.getSource();
+			if (oSource.getSelectedKey()) {
+				oSource.setValueState("None");
+			}
+		},
+
 		getNewOrgUnitSet: function (sSBUCode) {
 			var aFilters = [
 				new sap.ui.model.Filter(
@@ -1938,7 +1991,7 @@ sap.ui.define([
 				"/NewOrgUnitSet", aFilters, "newOrgUnitModel"
 			);
 		},
-		_loadOData: function (sPath, aFilters, sModelName) {
+		_loadOData: function (sPath, aFilters, sModelName, fnCallback) {
 			var oModel = this.getOwnerComponent().getModel();
 			var oView = this.getView();
 			oModel.read(sPath, {
@@ -1948,6 +2001,7 @@ sap.ui.define([
 						new sap.ui.model.json.JSONModel(oData),
 						sModelName
 					);
+					if (fnCallback) { setTimeout(function () { fnCallback(oData); }, 0); }
 				}.bind(this),
 				error: function (oError) {
 					console.error("OData load failed for " + sPath, oError);
@@ -1961,8 +2015,14 @@ sap.ui.define([
 			);
 		},
 		onNewLocSelectionChange: function (oEvent) {
-			var oSelectedItem = oEvent.getSource().getSelectedItem();
-			if (!oSelectedItem) {
+			var oView = this.getView();
+			var oBuilding = oView.byId("newBuilding");
+			if (oBuilding) {
+				oBuilding.setSelectedKey("");
+			}
+			var oSelectedItem = oEvent.getParameter("selectedItem");
+			if (!oSelectedItem || !oSelectedItem.getKey()) {
+				oView.setModel(new sap.ui.model.json.JSONModel({ results: [] }), "newBuildingModel");
 				return;
 			}
 			var sLocationId = oSelectedItem.getKey();
@@ -1982,7 +2042,7 @@ sap.ui.define([
 				"newBuildingModel"
 			);
 		},
-		_loadODataLocBuilding: function (sPath, aFilters, sModelName) {
+		_loadODataLocBuilding: function (sPath, aFilters, sModelName, fnCallback) {
 			var oModel = this.getOwnerComponent().getModel();
 			var oView = this.getView();
 			oModel.read(sPath, {
@@ -1992,6 +2052,7 @@ sap.ui.define([
 						new sap.ui.model.json.JSONModel(oData),
 						sModelName
 					);
+					if (fnCallback) { setTimeout(function () { fnCallback(oData); }, 0); }
 				}.bind(this),
 				error: function (oError) {
 					console.error("Error loading " + sPath, oError);
@@ -2001,35 +2062,31 @@ sap.ui.define([
 
 		_validateDependentFields: function () {
 			var bValid = true;
-			// Org Unit
+			var oView = this.getView();
+
+			// SBU → Org Unit: if SBU selected, Org Unit is mandatory
+			var oSBU = this.byId("newSBUTransfer");
 			var oOrgUnit = this.byId("newOrgUnit");
-			var aOrgUnits = "";
-			// var aOrgUnits = this.getView().getModel("newOrgUnitModel") ? this.getView().getModel("newOrgUnitModel").getProperty("/results") || []
-			if (this.getView().getModel("newOrgUnitModel")) {
-				aOrgUnits = this.getView().getModel("newOrgUnitModel").getProperty("/results");
-			} else {
-				aOrgUnits = [];
-			}
-			if (aOrgUnits.length > 0 && !oOrgUnit.getSelectedKey()) {
-				oOrgUnit.setValueState("Error");
-				oOrgUnit.setValueStateText("Please select an Org Unit");
-				bValid = false;
+			if (oSBU && oSBU.getSelectedKey()) {
+				if (oOrgUnit && !oOrgUnit.getSelectedKey()) {
+					oOrgUnit.setValueState("Error");
+					oOrgUnit.setValueStateText("Please select an Org Unit");
+					bValid = false;
+				} else if (oOrgUnit) {
+					oOrgUnit.setValueState("None");
+				}
 			}
 
-			// Building
+			// Location → Building: mandatory only when buildings exist for the selected location
 			var oBuilding = this.byId("newBuilding");
-			var aBuildings = "";
-			// var aBuildings = this.getView().getModel("newBuildingModel") ? this.getView().getModel("newBuildingModel").getProperty("/results") || []
-			if (this.getView().getModel("newBuildingModel")) {
-				aBuildings = this.getView().getModel("newBuildingModel").getProperty("/results");
-			} else {
-				aBuildings = [];
-			}
-
-			if (aBuildings.length > 0 && !oBuilding.getSelectedKey()) {
+			var oBuildingModel = oView.getModel("newBuildingModel");
+			var aBuildings = oBuildingModel ? oBuildingModel.getProperty("/results") || [] : [];
+			if (aBuildings.length > 0 && oBuilding && !oBuilding.getSelectedKey()) {
 				oBuilding.setValueState("Error");
 				oBuilding.setValueStateText("Please select a Building");
 				bValid = false;
+			} else if (oBuilding) {
+				oBuilding.setValueState("None");
 			}
 
 			return bValid;
@@ -2052,12 +2109,24 @@ sap.ui.define([
 			var selMatrxMngrId = oEvent.getSource().getSelectedText().split("-")[1].trim();
 			oView.getModel("employeeModel").setProperty("/MatrxMngName", selMatrxMngrTxt);
 			oView.getModel("employeeModel").setProperty("/MatrxMngId", selMatrxMngrId);
+			var oItem = oEvent.getParameter("selectedItem");
+			if (oItem) {
+				var oCtx = oItem.getBindingContext("MatrxMngrEmpSetModel");
+				var sDesig = oCtx ? oCtx.getProperty("Designation") || "" : "";
+				oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", sDesig);
+			}
 		},
 		newRMItmSelected: function (oEvent) {
 			var oView = this.getView();
 			var selRMItmTxt = oEvent.getSource().getSelectedText().split("-")[0].trim();
 			var selRMItmId = oEvent.getSource().getSelectedText().split("-")[1].trim();
 			oView.getModel("employeeModel").setProperty("/MRItemId", selRMItmId);
+			var oItem = oEvent.getParameter("selectedItem");
+			if (oItem) {
+				var oCtx = oItem.getBindingContext("newRMModel");
+				var sDesig = oCtx ? oCtx.getProperty("Designation") || "" : "";
+				oView.getModel("employeeModel").setProperty("/NewRm1Designation", sDesig);
+			}
 		}
 
 	});

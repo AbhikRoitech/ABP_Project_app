@@ -37,29 +37,23 @@
 					<!--<Select items="{newSBUModel>/results}">-->
 					<!--	<core:Item key="{newSBUModel>id}" text="{newSBUModel>name}"/>-->
 					<!--</Select>-->
-					<ComboBox items="{newSBUModel>/results}" selectionChange="onNewSBUChange" enabled="{stateModel>/isEditable}">
+					<Select id="newSBUTransfer" items="{newSBUModel>/results}" change="onNewSBUChange" enabled="{stateModel>/isEditable}" forceSelection="false">
 						<core:Item key="{newSBUModel>SBUCode}" text="{newSBUModel>SBUDescription} - {newSBUModel>SBUCode}"/>
-					</ComboBox>
+					</Select>
 					<Label text="New Location" class="customLabelCss"/>
 					<!--<Input editable="false"/>-->
-					<ComboBox selectionChange="onNewLocSelectionChange" items="{newLocationModel>/results}" enabled="{stateModel>/isEditable}">
+					<Select id="newLocationTransfer" items="{newLocationModel>/results}" change="onNewLocSelectionChange" enabled="{stateModel>/isEditable}" forceSelection="false">
 						<core:Item key="{newLocationModel>LocationId}" text="{newLocationModel>LocationName} - {newLocationModel>LocationId}"/>
-					</ComboBox>
+					</Select>
 					<Label text="New Designation" class="customLabelCss"/>
-					<Input value="{empModel>/NewDesignation}" liveChange="onDesignationLiveChange" editable="{stateModel>/isEditable}"/>
+					<Input id="newDesignationTransfer" value="{empModel>/NewDesignation}" liveChange="onDesignationLiveChange" editable="{stateModel>/isEditable}"/>
 					<Label text="New RM" class="customLabelCss"/>
-					<!--<HBox>-->
-					<!--<ComboBox selectedKey="{empModel>/NewRMId}" selectionChange="onNewRMSelectionChange" items="{rmModel>/results}">-->
-					<!--	<core:Item key="{rmModel>empId}" text="{rmModel>empName} - {rmModel>empId}"/>-->
-					<!--</ComboBox>-->
 					<Input id="newRMItemsTransfer" placeholder="Select Options" showSuggestion="true" suggestionItems="{newRMModel>/results}"
-						liveChange=".newRMSearch" suggestionItemSelected="" enabled="{stateModel>/isEditable}">
+						liveChange=".newRMSearch" suggestionItemSelected="newRMItmSelected" enabled="{stateModel>/isEditable}">
 						<suggestionItems>
 							<core:ListItem text="{newRMModel>EmplName} - {newRMModel>EmplId}" additionalText="{newRMModel>EmplId}"/>
 						</suggestionItems>
 					</Input>
-					<!--	<Text text="{empModel>/NewRMDisplay}" class="sapUiSmallMarginBegin sapUiSmallMarginTop"/>-->
-					<!--</HBox>-->
 					<!--<Label text=""/>-->
 					<!--<CheckBox selected="{empModel>/MatrixManagerSelected}" text="Matrix Manager" select="onMatrixCheck"/>-->
 					<!--<Label text="Matrix Manager" class="customLabelCss"/>-->
@@ -70,16 +64,20 @@
 					<!--<Select width="200px" items="{orgModel>/results}">-->
 					<!--	<core:Item key="{orgModel>id}" text="{orgModel>name}"/>-->
 					<!--</Select>-->
-					<ComboBox id="newOrgUnit" items="{newOrgUnitModel>/results}" enabled="{stateModel>/isEditable}">
+					<Select id="newOrgUnit" items="{newOrgUnitModel>/results}" enabled="{stateModel>/isEditable}" change="onNewOrgUnitChange" forceSelection="false">
 						<core:Item key="{newOrgUnitModel>OrgUnit}" text="{newOrgUnitModel>OrgUnitDescription} - {newOrgUnitModel>OrgUnit}"/>
-					</ComboBox>
+					</Select>
 					<Label text="New Building" class="customLabelCss"/>
 					<!--<Select width="200px" items="{buildingModel>/results}">-->
 					<!--	<core:Item key="{buildingModel>id}" text="{buildingModel>name}"/>-->
 					<!--</Select>-->
-					<ComboBox id="newBuilding" items="{newBuildingModel>/results}" enabled="{stateModel>/isEditable}">
+					<Select id="newBuilding" items="{newBuildingModel>/results}" enabled="{stateModel>/isEditable}" forceSelection="false">
 						<core:Item key="{newBuildingModel>BuildingNo}" text="{newBuildingModel>BuildingName} - {newBuildingModel>BuildingNo}"/>
-					</ComboBox>
+					</Select>
+					<Label text=""/>
+					<Text text=""/>
+					<Label text="New RM Designation" class="customLabelCss"/>
+					<Text id="newRm1DesigTransfer" text="{employeeModel>/NewRm1Designation}"/>
 				</f:SimpleForm>
 				<VBox class="formWithLargeLabels">
 					<CheckBox selected="{empModel>/MatrixManagerSelected}" text="Matrix Manager" select="onMatrixCheck" class="sapUiTinyMarginBegin" enabled="{stateModel>/isEditable}"/>
@@ -87,13 +85,16 @@
 						labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
 						singleContainerFullSize="false" visible="false">
 						<f:content>
-							<Label text="Matrix Manager" class="customLabelCss"/>
+							<Label text="Matrix Manager"/>
 							<Input id="matrxMngrEmpIdTransfer" placeholder="Select Manager Id" showSuggestion="true" suggestionItems="{MatrxMngrEmpSetModel>/results}"
-								liveChange=".getMatrixManagerSet" suggestionItemSelected="" enabled="{stateModel>/isEditable}">
+								liveChange=".getMatrixManagerSet" suggestionItemSelected="matrxMngrIdSelection" enabled="{stateModel>/isEditable}">
 								<suggestionItems>
 									<core:ListItem text="{MatrxMngrEmpSetModel>EmplName} - {MatrxMngrEmpSetModel>EmplId}" additionalText="{MatrxMngrEmpSetModel>EmplId}"/>
 								</suggestionItems>
 							</Input>
+							<!-- <core:Title text=""/> -->
+							<Label text="Matrix Manager Designation"/>
+							<Text id="newMatrxMngrDesigTransfer" text="{employeeModel>/NewMatrixManagerDesig}"/>
 							<!--<ComboBox items="" enabled="{empModel>/MatrixManagerSelected}">-->
 							<!--	<core:Item key="" text=""/>-->
 							<!--</ComboBox>-->
