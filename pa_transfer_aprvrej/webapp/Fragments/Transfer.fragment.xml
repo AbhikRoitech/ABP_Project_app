@@ -43,7 +43,7 @@
 						<Input value="{transferModel>/NewDesignation}" editable="false"/>
 						<Label text="New RM" class="customLabelCss"/>
 						<Input value="{transferModel>/NewRM}" editable="false"/>
-						<Label text="New RM Designation" class="customLabelCss"/>
+						<Label text="" class="customLabelCss"/>
 						<Input value="{transferModel>/NewRmDesignation}" editable="false"/>
 						<!-- Details (Right Side) -->
 						<core:Title text=""/>
@@ -61,7 +61,7 @@
 						<f:content>
 							<Label text="Matrix Manager Emp ID"/>
 							<Input id="matrxMngrEmpId" value="{transferModel>/NewMMId}" editable="false"/>
-							<Label text="Matrix Manager Designation"/>
+							<Label text=""/>
 							<Input value="{transferModel>/NewMMDesignation}" editable="false"/>
 						</f:content>
 					</f:SimpleForm>

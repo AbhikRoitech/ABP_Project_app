@@ -54,6 +54,8 @@
 							<core:ListItem text="{newRMModel>EmplName} - {newRMModel>EmplId}" additionalText="{newRMModel>EmplId}"/>
 						</suggestionItems>
 					</Input>
+					<Label text="" class="customLabelCss"/>
+					<Text id="newRm1DesigTransfer" text="{employeeModel>/NewRm1Designation}"/>
 					<!--<Label text=""/>-->
 					<!--<CheckBox selected="{empModel>/MatrixManagerSelected}" text="Matrix Manager" select="onMatrixCheck"/>-->
 					<!--<Label text="Matrix Manager" class="customLabelCss"/>-->
@@ -74,10 +76,6 @@
 					<Select id="newBuilding" items="{newBuildingModel>/results}" enabled="{stateModel>/isEditable}" forceSelection="false">
 						<core:Item key="{newBuildingModel>BuildingNo}" text="{newBuildingModel>BuildingName} - {newBuildingModel>BuildingNo}"/>
 					</Select>
-					<Label text=""/>
-					<Text text=""/>
-					<Label text="New RM Designation" class="customLabelCss"/>
-					<Text id="newRm1DesigTransfer" text="{employeeModel>/NewRm1Designation}"/>
 				</f:SimpleForm>
 				<VBox class="formWithLargeLabels">
 					<CheckBox selected="{empModel>/MatrixManagerSelected}" text="Matrix Manager" select="onMatrixCheck" class="sapUiTinyMarginBegin" enabled="{stateModel>/isEditable}"/>
@@ -93,7 +91,7 @@
 								</suggestionItems>
 							</Input>
 							<!-- <core:Title text=""/> -->
-							<Label text="Matrix Manager Designation"/>
+							<Label text=""/>
 							<Text id="newMatrxMngrDesigTransfer" text="{employeeModel>/NewMatrixManagerDesig}"/>
 							<!--<ComboBox items="" enabled="{empModel>/MatrixManagerSelected}">-->
 							<!--	<core:Item key="" text=""/>-->

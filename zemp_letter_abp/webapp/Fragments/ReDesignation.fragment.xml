@@ -36,10 +36,7 @@
 						<core:ListItem text="{newRMModel>EmplName} - {newRMModel>EmplId}" additionalText="{newRMModel>EmplId}"/>
 					</suggestionItems>
 				</Input>
-				<core:Title text=""/>
 				<Label text=""/>
-				<Text text=""/>
-				<Label text="New RM Designation"/>
 				<Text id="newRm1Desig" text="{employeeModel>/NewRm1Designation}"/>
 				<!--<ComboBox items="{newRMModel>/results}">-->
 				<!--	<layoutData><FlexItemData growFactor="1"/></layoutData>-->
@@ -64,8 +61,9 @@
 							<core:ListItem text="{MatrxMngrEmpSetModel>EmplName} - {MatrxMngrEmpSetModel>EmplId}" additionalText="{MatrxMngrEmpSetModel>EmplId}"/>
 						</suggestionItems>
 					</Input>
-					<Label text="Matrix Manager Designation"/>
+					<Label text=""/>
 					<Text id="newMatrxMngrDesig" text="{employeeModel>/NewMatrixManagerDesig}"/>
+					
 				</f:content>
 			</f:SimpleForm>
 		</VBox>

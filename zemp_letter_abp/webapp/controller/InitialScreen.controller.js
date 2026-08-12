@@ -740,6 +740,18 @@ sap.ui.define([
 											}
 											oNewRM.setValue(sRmValue);
 										}
+										// Lookup RM Designation if not returned by backend
+										if (oSrvData.NewRm1Id && !oSrvData.NewRm1Designation) {
+											var oODataLookup = that.getOwnerComponent().getModel();
+											oODataLookup.read("/NewRMSet", {
+												filters: [new sap.ui.model.Filter("EmplId", sap.ui.model.FilterOperator.EQ, oSrvData.NewRm1Id)],
+												success: function (oRMData) {
+													if (oRMData.results && oRMData.results.length > 0) {
+														oView.getModel("employeeModel").setProperty("/NewRm1Designation", oRMData.results[0].Designation || "");
+													}
+												}
+											});
+										}
 										// Matrix Manager (R1: matrxMngrEmpId, T1: matrxMngrEmpIdTransfer)
 										if (oSrvData.NewMatrixManagerId && oSrvData.NewMatrixManagerId.replace(/^0+/, "")) {
 											that.onMatrixCheck(true);
@@ -750,6 +762,18 @@ sap.ui.define([
 													sMatrixVal = sMatrixVal + " - " + oSrvData.NewMatrixManagerId.replace(/^0+/, "");
 												}
 												oMatrixInput.setValue(sMatrixVal);
+											}
+											// Lookup MM Designation if not returned by backend
+											if (!oSrvData.NewMatrixManagerDesig) {
+												var oODataLookup2 = that.getOwnerComponent().getModel();
+												oODataLookup2.read("/MatrxMngrEmpSet", {
+													filters: [new sap.ui.model.Filter("EmplId", sap.ui.model.FilterOperator.EQ, oSrvData.NewMatrixManagerId)],
+													success: function (oMMData) {
+														if (oMMData.results && oMMData.results.length > 0) {
+															oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", oMMData.results[0].Designation || "");
+														}
+													}
+												});
 											}
 										}
 										// Transfer ComboBoxes (T1 only)
@@ -1835,6 +1859,7 @@ sap.ui.define([
 		newRMSearch: function (oEvent) {
 			var oView = this.getView();
 			var sKeyValue = oEvent.getParameter("value");
+			oView.getModel("employeeModel").setProperty("/NewRm1Designation", "");
 			var oDataModel = this.getOwnerComponent().getModel();
 			if (!sKeyValue || sKeyValue.length < 3) {
 				return;
@@ -1862,6 +1887,7 @@ sap.ui.define([
 		getMatrixManagerSet: function (oEvent) {
 			var oView = this.getView();
 			var sKValue = oEvent.getParameter("value");
+			oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", "");
 			var oModel = this.getOwnerComponent().getModel();
 			if (!sKValue || sKValue.length < 3) {
 				return;
@@ -2105,27 +2131,53 @@ sap.ui.define([
 		},
 		matrxMngrIdSelection: function (oEvent) {
 			var oView = this.getView();
-			var selMatrxMngrTxt = oEvent.getSource().getSelectedText().split("-")[0].trim();
-			var selMatrxMngrId = oEvent.getSource().getSelectedText().split("-")[1].trim();
+			var oItem = oEvent.getParameter("selectedItem");
+			if (!oItem) return;
+			var sEmplId = oItem.getAdditionalText() || "";
+			var sText = oItem.getText() || "";
+			var selMatrxMngrTxt = sText.split("-")[0].trim();
+			var selMatrxMngrId = sText.split("-")[1] ? sText.split("-")[1].trim() : sEmplId.trim();
 			oView.getModel("employeeModel").setProperty("/MatrxMngName", selMatrxMngrTxt);
 			oView.getModel("employeeModel").setProperty("/MatrxMngId", selMatrxMngrId);
-			var oItem = oEvent.getParameter("selectedItem");
-			if (oItem) {
-				var oCtx = oItem.getBindingContext("MatrxMngrEmpSetModel");
-				var sDesig = oCtx ? oCtx.getProperty("Designation") || "" : "";
-				oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", sDesig);
+			var sDesig = "";
+			var oCtx = oItem.getBindingContext("MatrxMngrEmpSetModel");
+			if (oCtx) {
+				sDesig = oCtx.getProperty("Designation") || "";
 			}
+			if (!sDesig) {
+				var aResults = (oView.getModel("MatrxMngrEmpSetModel").getProperty("/results")) || [];
+				var oMatch = aResults.find(function (r) { return r.EmplId === sEmplId; });
+				if (oMatch) sDesig = oMatch.Designation || "";
+			}
+			oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", sDesig);
 		},
 		newRMItmSelected: function (oEvent) {
 			var oView = this.getView();
-			var selRMItmTxt = oEvent.getSource().getSelectedText().split("-")[0].trim();
-			var selRMItmId = oEvent.getSource().getSelectedText().split("-")[1].trim();
-			oView.getModel("employeeModel").setProperty("/MRItemId", selRMItmId);
 			var oItem = oEvent.getParameter("selectedItem");
-			if (oItem) {
-				var oCtx = oItem.getBindingContext("newRMModel");
-				var sDesig = oCtx ? oCtx.getProperty("Designation") || "" : "";
+			if (!oItem) return;
+			var sEmplId = oItem.getAdditionalText() || "";
+			var sText = oItem.getText() || "";
+			var selRMItmTxt = sText.split("-")[0].trim();
+			var selRMItmId = sText.split("-")[1] ? sText.split("-")[1].trim() : sEmplId.trim();
+			oView.getModel("employeeModel").setProperty("/MRItemId", selRMItmId);
+			var sDesig = "";
+			var oCtx = oItem.getBindingContext("newRMModel");
+			if (oCtx) {
+				var oObj = oCtx.getObject();
+				sDesig = (oObj && oObj.Designation) ? oObj.Designation : "";
+			}
+			if (sDesig) {
 				oView.getModel("employeeModel").setProperty("/NewRm1Designation", sDesig);
+			} else {
+				var oODataModel = this.getOwnerComponent().getModel();
+				oODataModel.read("/MatrxMngrEmpSet", {
+					filters: [new sap.ui.model.Filter("EmplId", sap.ui.model.FilterOperator.EQ, sEmplId || selRMItmId)],
+					success: function (oData) {
+						if (oData.results && oData.results.length > 0) {
+							oView.getModel("employeeModel").setProperty("/NewRm1Designation", oData.results[0].Designation || "");
+						}
+					}
+				});
 			}
 		}
 
