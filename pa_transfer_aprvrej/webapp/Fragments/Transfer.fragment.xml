@@ -44,7 +44,7 @@
 						<Label text="New RM" class="customLabelCss"/>
 						<Input value="{transferModel>/NewRM}" editable="false"/>
 						<Label text="" class="customLabelCss"/>
-						<Input value="{transferModel>/NewRmDesignation}" editable="false"/>
+						<Text value="{transferModel>/NewRmDesignation}" editable="false"/>
 						<!-- Details (Right Side) -->
 						<core:Title text=""/>
 						<Label text="New Org Unit" class="customLabelCss"/>
@@ -59,10 +59,10 @@
 						labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
 						singleContainerFullSize="false" visible="{transferModel>/MatrixManagerSelected}">
 						<f:content>
-							<Label text="Matrix Manager Emp ID"/>
+							<Label text="Matrix Manager"/>
 							<Input id="matrxMngrEmpId" value="{transferModel>/NewMMId}" editable="false"/>
 							<Label text=""/>
-							<Input value="{transferModel>/NewMMDesignation}" editable="false"/>
+							<Text value="{transferModel>/NewMMDesignation}" editable="false"/>
 						</f:content>
 					</f:SimpleForm>
 				</VBox>

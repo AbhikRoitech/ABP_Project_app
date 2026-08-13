@@ -31,7 +31,7 @@
 				<Label text="New RM"/>
 				<Input id="newRMItems" value="{empModel>/NewRM}" editable="false"/>
 				<Label text=""/>
-				<Input value="{empModel>/NewRmDesignation}" editable="false"/>
+				<Text value="{empModel>/NewRmDesignation}" editable="false"/>
 			</f:content>
 		</f:SimpleForm>
 		<VBox class="formWithLargeLabels">
@@ -43,7 +43,7 @@
 					<Label text="Matrix Manager Emp ID"/>
 					<Input id="matrxMngrEmpId" value="{empModel>/NewMMId}" editable="false"/>
 					<Label text=""/>
-					<Input value="{empModel>/NewMMDesignation}" editable="false"/>
+					<Text value="{empModel>/NewMMDesignation}" editable="false"/>
 				</f:content>
 			</f:SimpleForm>
 		</VBox>

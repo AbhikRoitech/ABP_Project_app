@@ -229,6 +229,18 @@ sap.ui.define(
             NewMMId: sNewMM,
             NewMMDesignation: oSrvData.NewMatrixManagerDesig || "",
           });
+
+          if (bHasMatrixManager && !oSrvData.NewMatrixManagerDesig) {
+            var oDataModel = this.getOwnerComponent().getModel();
+            oDataModel.read("/MatrxMngrEmpSet", {
+              filters: [new sap.ui.model.Filter("EmplId", sap.ui.model.FilterOperator.EQ, oSrvData.NewMatrixManagerId)],
+              success: function (oMMData) {
+                if (oMMData.results && oMMData.results.length > 0) {
+                  oTransferModel.setProperty("/NewMMDesignation", oMMData.results[0].Designation || "");
+                }
+              }
+            });
+          }
         },
       },
     );
