@@ -142,11 +142,19 @@
 							<HBox class="formFieldPair">
 								<Label required="true" text="Employee:" class="labelInline"/>
 								<Input width="230px" id="empItems" placeholder="Select Employee" showSuggestion="true" enabled="{stateModel>/empFieldEnabled}" startSuggestion="3" filterSuggests="false" suggestionItems="{employeeModelId>/AllEmployees}"
-									suggest=".onEmployeeLiveSearch" suggestionItemSelected="onEmployeeSelection">
+									suggest=".onEmployeeLiveSearch" suggestionItemSelected="onEmployeeSelection"
+									visible="{= ${stateModel>/selectedAction} !== 'R2'}">
 									<suggestionItems>
 										<core:ListItem text="{employeeModelId>EmplName} - {employeeModelId>EmplId}" additionalText="{employeeModelId>EmplId}"/>
 									</suggestionItems>
 								</Input>
+								<Select id="empSelectHR" width="230px" forceSelection="false"
+									enabled="{stateModel>/empFieldEnabled}"
+									visible="{= ${stateModel>/selectedAction} === 'R2'}"
+									change=".onEmployeeSelect"
+									items="{ path: 'employeeModelId>/AllEmployees', templateShareable: false }">
+									<core:Item key="{employeeModelId>EmplId}" text="{employeeModelId>EmplName} - {employeeModelId>EmplId}"/>
+								</Select>
 							</HBox>
 							<HBox class="formFieldPair">
 								<Label required="true" text="Effective Date:" class="labelInline"/>

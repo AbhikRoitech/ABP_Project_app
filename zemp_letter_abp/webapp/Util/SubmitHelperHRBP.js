@@ -201,7 +201,7 @@ sap.ui.define([
 				NewLocationText: sNewLocationText,
 				NewBuildingId: sNewBuildingId,
 				NewBuildingText: sNewBuildingText,
-				RetirementDate: "",
+				RetirementDate: oEmpData.RetirementDate || "",
 				Edit: false,
 				Submit: false
 			};

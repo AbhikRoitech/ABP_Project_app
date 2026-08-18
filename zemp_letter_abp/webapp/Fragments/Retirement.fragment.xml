@@ -30,11 +30,11 @@
 			<HBox alignItems="Center" justifyContent="Center" class="sapUiMediumMarginBottom" width="100%">
 				<Label text="Completed Years of Service" width="250px" textAlign="Right" class="compactLabel sapUiSmallMarginEnd"/>
 				<Text text=":" class="compactLabel sapUiTinyMarginBeginEnd"/>
-				<Input id="idCompletedYears" width="250px" class="compactLabel" value="{TaxExemption>/Betrg}"
-					editable="{= ${stateModel>/isEditable} !== false &amp;&amp; (${editableNonEditableModel>/FoodWallDis} ? true : false) }" textAlign="Center" liveChange="onFWChange"/>
+				<Input id="idCompletedYears" width="250px" class="compactLabel" value="{employeeModel>/RetirementDate}"
+					editable="false" textAlign="Center"/>
 			</HBox>
 			<HBox alignItems="Center" justifyContent="Center" class="sapUiMediumMarginBottom" width="100%">
-				<Label text="Effective Date of Retirement" width="250px" textAlign="Right" class="compactLabel sapUiSmallMarginEnd"/>
+				<Label text="Letter Generation Date" width="250px" textAlign="Right" class="compactLabel sapUiSmallMarginEnd"/>
 				<Text text=":" class="compactLabel sapUiTinyMarginBeginEnd"/>
 				<DatePicker id="idRetirementDate" width="250px" class="compactLabel" displayFormat="dd-MM-yyyy" valueFormat="dd-MM-yyyy"
 					value="{ path: 'TaxExemption>/Betrg', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd-MM-yyyy' } }"

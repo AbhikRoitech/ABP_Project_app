@@ -219,6 +219,10 @@ sap.ui.define([
 			if (oEmpInput) {
 				oEmpInput.setValue("");
 			}
+			var oEmpSelect = oView.byId("empSelectHR");
+			if (oEmpSelect) {
+				oEmpSelect.setSelectedKey("");
+			}
 			["EMP", "MGR", "HR"].forEach(function (role) {
 
 				var oDP = oView.byId("datePicker" + role);
@@ -480,7 +484,8 @@ sap.ui.define([
 							NewRM: oSrvData.NewRm1Name || "",
 							Status: oSrvData.Status || "Open",
 							NewRm1Designation: oSrvData.NewRm1Designation || "",
-							NewMatrixManagerDesig: oSrvData.NewMatrixManagerDesig || ""
+							NewMatrixManagerDesig: oSrvData.NewMatrixManagerDesig || "",
+							RetirementDate: oSrvData.RetirementDate || ""
 						});
 						// ENABLE FOOTER
 						var sStatusUpper = (oSrvData.Status || "").toUpperCase();
@@ -624,7 +629,8 @@ sap.ui.define([
 							NewDesignation: oSrvData.NewDesignation || "",
 							NewRm1Designation: oSrvData.NewRm1Designation || "",
 							NewMatrixManagerDesig: oSrvData.NewMatrixManagerDesig || "",
-							MatrixManagerSelected: !!(oSrvData.NewMatrixManagerId && oSrvData.NewMatrixManagerId.replace(/^0+/, ""))
+							MatrixManagerSelected: !!(oSrvData.NewMatrixManagerId && oSrvData.NewMatrixManagerId.replace(/^0+/, "")),
+							RetirementDate: oSrvData.RetirementDate || ""
 						});
 						// ENABLE FOOTER
 						var oStateModel = oView.getModel("stateModel");
@@ -656,6 +662,11 @@ sap.ui.define([
 						}
 
 						oView.byId("empItems").setValue(oSrvData.EmpId + "" + "-" + "" + oSrvData.EmpName);
+						var oEmpSelectHR = oView.byId("empSelectHR");
+						if (oEmpSelectHR) {
+							oEmpSelectHR.setSelectedKey(oSrvData.EmpId);
+							oEmpSelectHR.setEnabled(false);
+						}
 						oView.byId("empComboBoxHR").setEnabled(false);
 						oView.byId("empItems").setEnabled(false);
 						oView.byId("datePickerHR").setEnabled(false);
@@ -1742,10 +1753,18 @@ sap.ui.define([
 		// Added by Arnab - 01.06.2026
 		handleDateChange: function (oEvent) {
 			this.oSelectedDateCopy = structuredClone(oEvent.getSource().getDateValue());
-			var sValue = this.byId("empItems").getValue();
+			var sAction = this.getView().getModel("stateModel").getProperty("/selectedAction");
 			var sEmpId = "";
-			if (sValue && sValue.includes("-")) {
-				sEmpId = sValue.split("-")[1].trim();
+			if (sAction === "R2") {
+				var oEmpSelectHR = this.byId("empSelectHR");
+				if (oEmpSelectHR) {
+					sEmpId = oEmpSelectHR.getSelectedKey();
+				}
+			} else {
+				var sValue = this.byId("empItems").getValue();
+				if (sValue && sValue.includes("-")) {
+					sEmpId = sValue.split("-")[1].trim();
+				}
 			}
 			if (!this._validateForm()) {
 				sap.m.MessageToast.show("Please fill all mandatory fields");
@@ -1921,11 +1940,14 @@ sap.ui.define([
 		_validateForm: function () {
 			var bValid = true;
 			var oRequest = this.byId("empComboBoxHR");
+			var sAction = this.getView().getModel("stateModel").getProperty("/selectedAction");
 			var oEmployee = this.byId("empItems");
+			var oEmpSelectHR = this.byId("empSelectHR");
 			var oDate = this.byId("datePickerHR");
 			// Reset previous states
 			oRequest.setValueState("None");
-			oEmployee.setValueState("None");
+			if (oEmployee) oEmployee.setValueState("None");
+			if (oEmpSelectHR) oEmpSelectHR.setValueState("None");
 			oDate.setValueState("None");
 			// Request validation
 			if (!oRequest.getSelectedKey()) {
@@ -1934,7 +1956,15 @@ sap.ui.define([
 				bValid = false;
 			}
 			// Employee validation
-			if (!oEmployee.getValue()) {
+			if (sAction === "R2") {
+				if (!oEmpSelectHR || !oEmpSelectHR.getSelectedKey()) {
+					if (oEmpSelectHR) {
+						oEmpSelectHR.setValueState("Error");
+						oEmpSelectHR.setValueStateText("Employee is required");
+					}
+					bValid = false;
+				}
+			} else if (!oEmployee.getValue()) {
 				oEmployee.setValueState("Error");
 				oEmployee.setValueStateText("Employee is required");
 				bValid = false;
@@ -1951,10 +1981,15 @@ sap.ui.define([
 		_clearEmployeeSection: function () {
 			// Clear controls
 			var oEmpInput = this.byId("empItems");
+			var oEmpSelect = this.byId("empSelectHR");
 			var oDatePicker = this.byId("datePickerHR");
 			if (oEmpInput) {
 				oEmpInput.setValue("");
 				oEmpInput.setValueState("None");
+			}
+			if (oEmpSelect) {
+				oEmpSelect.setSelectedKey("");
+				oEmpSelect.setValueState("None");
 			}
 			if (oDatePicker) {
 				oDatePicker.setDateValue(null);
