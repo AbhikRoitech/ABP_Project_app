@@ -206,8 +206,10 @@ sap.ui.define([
 				Submit: false
 			};
 
+			if (sAction !== "R2") {
+				delete oEntry.RetirementDate;
+			}
 			if (sAction === "C1") {
-				oEntry.RetirementDate = null;
 				oEntry.Edit = "";
 				oEntry.Submit = "";
 			}
@@ -283,6 +285,13 @@ sap.ui.define([
 			// Effective Date check
 			if (!oEffDate) {
 				aMissingFields.push("Effective Date");
+			}
+
+			if (sAction === "R1") {
+				var oDesigInput = oController.getView().byId("newDesignation");
+				if (!oDesigInput || !oDesigInput.getValue().trim()) {
+					aMissingFields.push("New Designation");
+				}
 			}
 
 			if (sAction === "C1") {

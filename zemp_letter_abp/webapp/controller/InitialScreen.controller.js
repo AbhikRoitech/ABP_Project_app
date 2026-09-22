@@ -456,7 +456,7 @@ sap.ui.define([
 					new sap.ui.model.Filter(
 						"RequestId",
 						sap.ui.model.FilterOperator.EQ,
-						String(oRequestId)
+						String(oRequestId || " ")
 					)
 				],
 				success: function (oData) {

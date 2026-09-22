@@ -26,7 +26,7 @@
 				<Input value="{employeeModel>/Hod1Designation}" editable="false" tooltip="{employeeModel>/Hod1Designation}"/>
 				<!-- New Details Section -->
 				<core:Title text="New Assignment"/>
-				<Label text="New Designation"/>
+				<Label text="New Designation" required="true"/>
 				<Input id="newDesignation" value="{empModel>/NewDesignation}" liveChange="onDesignationLiveChange" editable="{stateModel>/isEditable}"/>
 				<!--<Input value="{ path: 'empModel>/NewDesignation', formatter: '.formatter.uppercase' }"/>-->
 				<Label text="New RM"/>
