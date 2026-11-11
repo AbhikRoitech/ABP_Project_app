@@ -851,6 +851,10 @@ sap.ui.define([
 			});
 		},
 		onSubmit: function () {
+			// Matrix Manager ticked but left empty -> warn before the confirm dialog
+			if (!this._validateMatrixManager()) {
+				return;
+			}
 			sap.m.MessageBox.confirm("Are you sure you want to submit?", {
 				title: "Confirm",
 				actions: [sap.m.MessageBox.Action.YES, sap.m.MessageBox.Action.NO],
@@ -863,6 +867,10 @@ sap.ui.define([
 			});
 		},
 		onSubmitPress: function (oEvent) {
+			// Matrix Manager ticked but left empty -> warn before saving
+			if (!this._validateMatrixManager()) {
+				return;
+			}
 			var oView = this.getView();
 			var oFeedback = oView.getModel("feedbackModel").getData();
 			// 	sOperation = oEvent ? oEvent.getSource().data("operation") : "SUB";
@@ -1732,6 +1740,23 @@ sap.ui.define([
 				bIsSelected = oEvent === true || oEvent === "X";
 			}
 			Common.toggleMatrixManagerField(oView, bIsSelected);
+			if (oEvent && typeof oEvent.getSource === "function") {
+				// Checkbox toggled by the user -> reset any previously selected Matrix Manager
+				Common.clearMatrixManagerSelection(oView);
+			}
+		},
+		/**
+		 * Safety net for the Matrix Manager input: when the field is left empty
+		 * (cleared, or only whitespace typed), wipe the designation text shown
+		 * below it together with the stored manager id/name.
+		 */
+		onMatrixManagerChange: function (oEvent) {
+			var sValue = (oEvent.getParameter("value") || "").trim();
+			if (sValue) {
+				return;
+			}
+			oEvent.getSource().setValue("");
+			Common.clearMatrixManagerSelection(this.getView());
 		},
 		// Added by Arnab - 28.05.2026
 		_setActionDropdown: function () {
@@ -1906,7 +1931,12 @@ sap.ui.define([
 		getMatrixManagerSet: function (oEvent) {
 			var oView = this.getView();
 			var sKValue = oEvent.getParameter("value");
+			oEvent.getSource().setValueState("None");
 			oView.getModel("employeeModel").setProperty("/NewMatrixManagerDesig", "");
+			// User cleared the Matrix Manager input -> drop the previously selected manager
+			if (!sKValue || !sKValue.trim()) {
+				Common.clearMatrixManagerSelection(oView);
+			}
 			var oModel = this.getOwnerComponent().getModel();
 			if (!sKValue || sKValue.length < 3) {
 				return;
@@ -2121,6 +2151,44 @@ sap.ui.define([
 			});
 		},
 
+		/**
+		 * Matrix Manager check (R1 / T1 only).
+		 * If the Matrix Manager checkbox is ticked but no manager has been
+		 * picked, warn the user instead of saving/submitting an empty value.
+		 *
+		 * @returns {boolean} true when nothing is pending
+
+		*/
+		_validateMatrixManager: function () {
+			var oView = this.getView();
+			var sAction = oView.getModel("stateModel").getProperty("/selectedAction");
+			// Matrix Manager only exists on Re-Designation and Transfer
+			if (sAction !== "R1" && sAction !== "T1") {
+				return true;
+			}
+			// The form is made visible by the Matrix Manager checkbox
+			var oMatrixForm = oView.byId("MatrxMngEmpId");
+			if (!oMatrixForm || !oMatrixForm.getVisible()) {
+				return true;
+			}
+			var oMatrixInput = oView.byId("matrxMngrEmpId") || oView.byId("matrxMngrEmpIdTransfer");
+			if (!oMatrixInput) {
+				return true;
+			}
+			if (!(oMatrixInput.getValue() || "").trim()) {
+				oMatrixInput.setValueState("Error");
+				oMatrixInput.setValueStateText("Please select a Matrix Manager");
+				oMatrixInput.focus();
+				sap.m.MessageBox.warning(
+					"Please select a Matrix Manager, or uncheck the Matrix Manager option.", {
+						title: "Warning"
+					}
+				);
+				return false;
+			}
+			oMatrixInput.setValueState("None");
+			return true;
+		},
 		_validateDependentFields: function () {
 			var bValid = true;
 			var oView = this.getView();
@@ -2165,6 +2233,7 @@ sap.ui.define([
 
 		},
 		matrxMngrIdSelection: function (oEvent) {
+			oEvent.getSource().setValueState("None");
 			var oView = this.getView();
 			var oItem = oEvent.getParameter("selectedItem");
 			if (!oItem) return;

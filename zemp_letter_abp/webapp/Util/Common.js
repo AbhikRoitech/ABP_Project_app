@@ -14,17 +14,39 @@ sap.ui.define([], function () {
 			this._clearMatrixManagerField(oView);
 			oView.byId("MatrxMngEmpId").setVisible(bVisible);
 		},
-		_clearMatrixManagerField: function (oView) {
-			// Clear Input Value
-			var oInputReDesig = oView.byId("matrxMngrEmpId");
-			var oInputTransfer = oView.byId("matrxMngrEmpIdTransfer");
-			if (oInputReDesig) {
-				oInputReDesig.setValue("");
-				oInputReDesig.setValueState("None");
-			} else if (oInputTransfer) {
-				oInputTransfer.setValue("");
-				oInputTransfer.setValueState("None");
+
+		/**
+		 * Clears the Matrix Manager data held in employeeModel
+		 * (designation shown below the input + selected id/name).
+		 * Called when the user empties the Matrix Manager input or
+		 * toggles the Matrix Manager checkbox, so the designation text
+		 * never stays behind for a manager that is no longer selected.
+		 *
+		 * NOTE: deliberately NOT called from _clearMatrixManagerField,
+		 * because the draft pre-population flow toggles the field on
+		 * AFTER employeeModel already holds the saved designation.
+		 *
+		 * @param {sap.ui.core.mvc.View} oView Current view instance
+		 */
+		clearMatrixManagerSelection: function (oView) {
+			var oEmployeeModel = oView.getModel("employeeModel");
+			if (!oEmployeeModel) {
+				return;
 			}
+			oEmployeeModel.setProperty("/NewMatrixManagerDesig", "");
+			oEmployeeModel.setProperty("/MatrxMngId", "");
+			oEmployeeModel.setProperty("/MatrxMngName", "");
+		},
+
+		_clearMatrixManagerField: function (oView) {
+			// Clear Input Value (R1 and T1 fragments use different ids)
+			var aInputs = [oView.byId("matrxMngrEmpId"), oView.byId("matrxMngrEmpIdTransfer")];
+			aInputs.forEach(function (oInput) {
+				if (oInput) {
+					oInput.setValue("");
+					oInput.setValueState("None");
+				}
+			});
 			// Clear Suggestion Model
 			var oModel = oView.getModel("MatrxMngrEmpSetModel");
 			if (oModel) {

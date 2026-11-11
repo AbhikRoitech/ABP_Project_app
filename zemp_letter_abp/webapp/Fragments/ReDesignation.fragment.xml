@@ -49,14 +49,14 @@
 			</f:content>
 		</f:SimpleForm>
 		<VBox class="formWithLargeLabels">
-			<CheckBox selected="{empModel>/MatrixManagerSelected}" text="Matrix Manager" select="onMatrixCheck" class="sapUiTinyMarginBegin" enabled="{stateModel>/isEditable}"/>
+			<CheckBox selected="{path: 'employeeModel>/MatrixManagerSelected', mode: 'OneWay'}" text="Matrix Manager" select="onMatrixCheck" class="sapUiTinyMarginBegin" enabled="{stateModel>/isEditable}"/>
 			<f:SimpleForm id="MatrxMngEmpId" class="formWithLargeLabels" editable="true" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="5"
 				labelSpanM="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0" columnsXL="2" columnsL="2" columnsM="2" columnS="1"
 				singleContainerFullSize="false" visible="false">
 				<f:content>
 					<Label text="Matrix Manager Emp ID"/>
 					<Input id="matrxMngrEmpId" placeholder="Select Manager Id" showSuggestion="true" suggestionItems="{MatrxMngrEmpSetModel>/results}"
-						liveChange=".getMatrixManagerSet" suggestionItemSelected="matrxMngrIdSelection" enabled="{stateModel>/isEditable}">
+						liveChange=".getMatrixManagerSet" change=".onMatrixManagerChange" suggestionItemSelected="matrxMngrIdSelection" enabled="{stateModel>/isEditable}">
 						<suggestionItems>
 							<core:ListItem text="{MatrxMngrEmpSetModel>EmplName} - {MatrxMngrEmpSetModel>EmplId}" additionalText="{MatrxMngrEmpSetModel>EmplId}"/>
 						</suggestionItems>

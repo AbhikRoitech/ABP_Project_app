@@ -28,8 +28,61 @@ sap.ui.define([
 			// set the device model
 			this.setModel(models.createDeviceModel(), "device");
 
+			// Opened from My Inbox (Open Task)? -> open this app as a full page in the same tab
+			if (this._openAsFullPageIfEmbedded()) {
+				return;
+			}
 			// create the views based on the url/hash
 			this.getRouter().initialize();
+		},
+
+		/**
+		 * When My Inbox embeds this app (Open Task), navigate to the app as a separate
+		 * full page in the same browser tab. Back button returns to the inbox task.
+		 * @returns {boolean} true if navigation to full page was started
+		 * @private
+		 */
+		_openAsFullPageIfEmbedded: function () {
+			var oComponentData = this.getComponentData() || {};
+			var sHash = window.location.hash || "";
+			var bEmbeddedInInbox = typeof oComponentData.onTaskUpdate === "function" &&
+				sHash.indexOf("WorkflowTask-displayInbox") > -1;
+			if (!bEmbeddedInInbox || !(sap.ushell && sap.ushell.Container)) {
+				return false;
+			}
+
+			var oStartup = oComponentData.startupParameters || {};
+			var oParams = {};
+			["EmpId", "ActId", "InstanceID"].forEach(function (sKey) {
+				if (oStartup[sKey] && oStartup[sKey][0]) {
+					oParams[sKey] = oStartup[sKey][0];
+				}
+			});
+
+			// Back button: return to the task detail in the inbox, not into this embedded app again
+			if (sHash.indexOf("/replaceDetail/") > -1 && window.history.replaceState) {
+				window.history.replaceState(window.history.state, "", sHash.replace("/replaceDetail/", "/detail/"));
+			}
+
+			var oTarget = { semanticObject: "ZREDESIGAPPREJ", action: "display" };
+			var aIntents = ["external", "replaceDetails"].map(function (sMode) {
+				return { target: oTarget, params: jQuery.extend({ openMode: sMode }, oParams) };
+			});
+			var oNav = sap.ushell.Container.getService("CrossApplicationNavigation");
+			var that = this;
+
+			oNav.isNavigationSupported(aIntents).done(function (aResult) {
+				for (var i = 0; i < aResult.length; i++) {
+					if (aResult[i].supported) {
+						oNav.toExternal(aIntents[i]);
+						return;
+					}
+				}
+				that.getRouter().initialize(); // fallback: show app inside the inbox
+			}).fail(function () {
+				that.getRouter().initialize();
+			});
+			return true;
 		},
 
 		/**
